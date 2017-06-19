@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <queue>
@@ -53,14 +54,6 @@ void general_search(vector< vector<int> > matrix, int choice_num)
 	nodes.push(node); 
 
 	// ================================================
-	// output everything into txt file called "out.txt"
-	// name of algoirthm
-	// name of heuristic
-	// number of steps
-	// five boards for each row showing move for each step
-	// ================================================
-
-	// ================================================
 	// Sample:
 	// Algorithm: Steepest - descent hill - climbing
 	// Heuristic function : CountingTilesOutOfPlace()
@@ -70,16 +63,23 @@ void general_search(vector< vector<int> > matrix, int choice_num)
 	//7 8 6  7 8 6  7 8 6  7 8 6  7 8 x
 	// ================================================
 
-	// print queue
-	cout << "Expanding state" << endl;
+	// Output to txt file
+	ofstream myfile;
+	myfile.open("out.txt");
+
+
+	// header information
+	myfile << "Algorithm: (name of algorithm)" << endl;
+	myfile << "Heuristic function: (function name)" << endl;
+
 	tuple<int, int, vector<vector<int>>> temp = nodes.top();
 	vector<vector<int>> temp1 = get<2>(temp);
 
-	for (int y = 0; y<3; y++)
+	for (int y = 0; y < 3; y++)
 	{
-		for (int x = 0; x<3; x++)
-			cout << temp1[y][x] << " ";
-		cout << endl;
+		for (int x = 0; x < 3; x++)
+			myfile << temp1[y][x] << " ";
+		myfile << endl;
 	}
 
 	int counter = -1;
@@ -90,7 +90,7 @@ void general_search(vector< vector<int> > matrix, int choice_num)
 		// if queue is empty and solution has not been found
 		if (nodes.empty())
 		{
-			cout << "Failure: No solution found" << endl;
+			myfile << "Failure: No solution found" << endl;
 			counter = 0;
 			return;
 		}
@@ -103,19 +103,20 @@ void general_search(vector< vector<int> > matrix, int choice_num)
 		// if goal state has been found
 		if (goalcheck(get<2>(node)) == true)
 		{
-			cout << "Goal reached" << endl;
+			myfile << endl;
+			myfile << "Goal reached." << endl;
 			temp1 = get<2>(node);
 
-			for (int y = 0; y<3; y++)
-			{
-				for (int x = 0; x<3; x++)
-					cout << temp1[y][x] << " ";
-				cout << endl;
-			}
+//			for (int y = 0; y < 3; y++)
+//			{
+//				for (int x = 0; x < 3; x++)
+//					myfile << temp1[y][x] << " ";
+//				myfile << endl;
+//			}
 
-			cout << total << " nodes were expanded." << endl;
-			cout << "The maximum number of nodes in the queue at any one time was " << max_size << endl;
-			cout << "Depth of goal node was " << get<1>(temp) << endl;
+//			myfile << total << " nodes were expanded." << endl;
+//			myfile << "The maximum number of nodes in the queue at any one time was " << max_size << endl;
+			myfile << "Number of steps: " << get<1>(temp) << endl;
 			counter = 1;
 
 			return;
@@ -128,15 +129,18 @@ void general_search(vector< vector<int> > matrix, int choice_num)
 		max_size = max(max_size, curr_size);
 		temp = nodes.top();
 		temp1 = get<2>(temp);
-		cout << "The best state to expand with a g(n) = " << get<1>(temp) << " and h(n) = " << get<0>(temp) << " is..." << endl;
+		myfile << endl;
 
-		for (int y = 0; y<3; y++)
+		for (int y = 0; y < 3; y++)
 		{
-			for (int x = 0; x<3; x++)
-				cout << temp1[y][x] << " ";
-			cout << endl;
+			for (int x = 0; x < 3; x++)
+				myfile << temp1[y][x] << " ";
+			myfile << endl;
 		}
 	}
+
+	// Close out.txt file
+	myfile.close();
 }
 
 // ================================================
@@ -151,6 +155,8 @@ bool goalcheck(vector< vector<int> > matrix)
 	int init_val = 0;
 
 	goal.resize(num_col, vector<int>(num_row, init_val));
+
+	// TODO: read target tiles/nodes setup from in.txt file
 
 	goal[0][0] = 1;
 	goal[0][1] = 2;
@@ -180,7 +186,7 @@ void expand(tuple<int, int, vector<vector<int>>> node, priority_queue< tuple<int
 	int blank_x = -1;
 	int blank_y = -1;
 
-	for (int y = 0; y<3; y++)
+	for (int y = 0; y < 3; y++)
 	{
 		for (int x = 0; x < 3; x++)
 		{
@@ -350,6 +356,8 @@ int misplace(vector<vector<int>> node)
 {
 	int sum = 0;
 
+	// TODO: read target tiles/nodes setup from in.txt file
+
 	if (node[0][0] != 1)
 		sum++;
 	if (node[0][1] != 2)
@@ -381,15 +389,23 @@ int main()
 	// NOTE: do not ask for entering initial and target data
 	// ================================================
 
-	// create function to read "in.txt" file, store into 9 variables
-
-	cout << "Enter your puzzle, use a zero to represent the blank " << endl;
-	cout << "Enter the first row, use space between numbers ";
-	
+	int i;
 	int input1, input2, input3;
-	cin >> input1 >> input2 >> input3;
-	
+	char *inname = "in.txt";
+
+	ifstream infile(inname);
+
+	if (!infile)
+	{ 
+		cout << "There was a problem opening the file or it does not exist" << endl; 
+		return 0;
+	}
+
 	vector<int> input; //rows
+
+
+	cout << "Reading the first row from text file..";
+	infile >> input1 >> input2 >> input3;
 	
 	input.push_back(input1);
 	input.push_back(input2);
@@ -397,16 +413,17 @@ int main()
 	matrix.push_back(input);//add row to matrix
 	input.clear();
 
-	cout << "Enter the second row, use space between numbers ";
-	cin >> input1 >> input2 >> input3;
+
+	cout << "Reading the second row from text file..";
+	infile >> input1 >> input2 >> input3;
 	input.push_back(input1);
 	input.push_back(input2);
 	input.push_back(input3);
 	matrix.push_back(input);//add row to matrix
 	input.clear();
 
-	cout << "Enter the third row, use space between numbers ";
-	cin >> input1 >> input2 >> input3;
+	cout << "Reading the third row from text file..";
+	infile >> input1 >> input2 >> input3;
 	input.push_back(input1);
 	input.push_back(input2);
 	input.push_back(input3);

@@ -1,0 +1,5 @@
+﻿  Source.cpp
+c:\users\dennis\desktop\481-8puzzle\project1\project1\source.cpp(393): warning C4101: 'i': unreferenced local variable
+c:\users\dennis\desktop\481-8puzzle\project1\project1\source.cpp(180): warning C4715: 'goalcheck': not all control paths return a value
+  Project1.vcxproj -> C:\Users\Dennis\Desktop\481-8Puzzle\Project1\Debug\Project1.exe
+  Project1.vcxproj -> C:\Users\Dennis\Desktop\481-8Puzzle\Project1\Debug\Project1.pdb (Partial PDB)
